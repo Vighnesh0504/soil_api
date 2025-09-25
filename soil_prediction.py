@@ -37,10 +37,10 @@ def predict(data: SoilFeatures):
     prediction = model.predict(features)
 
     if prediction[0] == 0:
-        result = "low-fertility"
+        result = "low-compost"
     elif prediction[0] == 1:
-        result = "medium-fertility"
+        result = "medium-compost"
     else:
-        result = "high-fertility"
+        result = "high-compost"
 
     return {"prediction": result}
