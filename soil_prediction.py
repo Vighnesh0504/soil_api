@@ -50,6 +50,7 @@ app = FastAPI(title="Soil Fertility Prediction API")
 model = joblib.load("soil_fertility_model.pkl")
 model1=joblib.load("crop_recomander_model.pkl")
 
+
 @app.post("/predict/soil")
 def predict(data: SoilFeatures):
     # Convert input to numpy array
@@ -80,7 +81,7 @@ def predict(data: cropFeatures):
     ]]
 
     # Predict
-    prediction = model.predict(features)
+    prediction = model1.predict(features)
 
     crop_name = decode_map[int(prediction[0])]
 
