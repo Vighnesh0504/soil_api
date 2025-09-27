@@ -47,8 +47,8 @@ decode_map = {v: k for k, v in encoding.items()}
 app = FastAPI(title="Soil Fertility Prediction API")
 
 # Load trained model
-model = joblib.load("soil_fertility prediction/soil_fertility_model.pkl")
-model1=joblib.load("soil_fertility prediction/crop_recomander_model.pkl")
+model = joblib.load("soil_fertility_model.pkl")
+model1=joblib.load("crop_recomander_model.pkl")
 
 @app.post("/predict/soil")
 def predict(data: SoilFeatures):
