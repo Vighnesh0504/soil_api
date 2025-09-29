@@ -73,7 +73,7 @@ def predict(data: SoilFeatures):
     return {"prediction": result}
 
 @app.post("/predict/crop")
-def predict(data: cropFeatures):
+def predict(data: cropFeatures, top_n: int = 3):
     # Convert input to numpy array
     features = [[
         data.N, data.P, data.K, data.temperature, data.humidity,
@@ -81,10 +81,20 @@ def predict(data: cropFeatures):
     ]]
 
     # Predict
-    prediction = model1.predict(features)
+    probs = model1.predict_proba(features)[0]  # shape (num_classes,)
 
-    crop_name = decode_map[int(prediction[0])]
+    # Get indices of top_n highest probabilities
+    top_indices = np.argsort(probs)[::-1][:top_n]
 
-    return {"prediction": crop_name}
+    # Map indices back to crop names
+    recommendations = [
+        {
+            "crop": decode_map[int(idx)],
+            "probability": float(probs[idx])
+        }
+        for idx in top_indices
+    ]
+
+    return {"recommendations": recommendations}
 
 
