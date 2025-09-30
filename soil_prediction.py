@@ -28,6 +28,16 @@ class cropFeatures(BaseModel):
     rainfall: float
     soil_health: float
     
+class fertilizerFeatures(BaseModel):
+    Temparature: float
+    Humidity: float
+    Moisture: float
+    Soil_Type: object
+    Crop_Type: object
+    Nitrogen: float
+    Potassium: float
+    Phosphorous: float
+    
 # Create FastAPI app
 
 encoding = {
@@ -41,14 +51,48 @@ encoding = {
     'watermelon': 21
 }
 
+soil_map={'Black':	0,'Clayey':	1,'Loamy':	2,'Red':	3,'Sandy':	4}
+crop_map={'Barley':	0,'Cotton':	1,'Ground Nuts':	2,'Maize':	3,'Millets':	4,'Oil seeds'	:5,'Paddy':	6,'Pulses':	7,'Sugarcane'	:8,
+'Tobacco':	9,
+'Wheat':	10,
+'coffee':	11,
+'kidneybeans':	12,
+'orange':	13,
+'pomegranate':	14,
+'rice':	15,
+'watermelon':	16
+}
+
+fertilizer_map = {
+    "10-10-10": 0,
+    "10-26-26": 1,
+    "14-14-14": 2,
+    "14-35-14": 3,
+    "15-15-15": 4,
+    "17-17-17": 5,
+    "20-20": 6,
+    "28-28": 7,
+    "DAP": 8,
+    "Potassium chloride": 9,
+    "Potassium sulfate.": 10,
+    "Superphosphate": 11,
+    "TSP": 12,
+    "Urea": 13
+}
+
+
+
 # Reverse dictionary for decoding
 decode_map = {v: k for k, v in encoding.items()}
+fertlizerdecode_map = {v: k for k, v in fertilizer_map.items()}
 
 app = FastAPI(title="Soil Fertility Prediction API")
 
 # Load trained model
 model = joblib.load("soil_fertility_model.pkl")
 model1=joblib.load("crop_recomander_model.pkl")
+model2=joblib.load("fertilizer_recomandation.pkl")
+
 
 
 @app.post("/predict/soil")
@@ -96,5 +140,24 @@ def predict(data: cropFeatures, top_n: int = 3):
     ]
 
     return {"recommendations": recommendations}
+
+@app.post("/predict/fertilizer")
+def predict(data: fertilizerFeatures):
+    
+    soil_type_encoded = soil_map[data.Soil_Type]
+    crop_type_encoded = crop_map[data.Crop_Type]
+    
+    features = [[
+        data.Temparature, data.Humidity, data.Moisture, soil_type_encoded, crop_type_encoded,
+        data.Nitrogen, data.Potassium, data.Phosphorous
+    ]]
+    
+    prediction = model2.predict(features)
+    
+    recommandation=fertlizerdecode_map[prediction[0]]
+    
+    return {'fertilizer':recommandation}
+    
+    
 
 
